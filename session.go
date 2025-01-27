@@ -30,7 +30,7 @@ func (s *Session) Session(ctx context.Context, fn func(ctx context.Context) erro
 	})
 }
 
-func (s *Session) SessionWithSessionOptions(ctx context.Context, fn func(ctx context.Context) error, sopts *options.SessionOptions) error {
+func (s *Session) SessionWithSessionOptions(ctx context.Context, sopts *options.SessionOptions, fn func(ctx context.Context) error) error {
 	return s.client.UseSessionWithOptions(ctx, sopts, func(sessionContext mongo.SessionContext) error {
 		if err := sessionContext.StartTransaction(); err != nil {
 			return err
@@ -49,5 +49,5 @@ func (s *Session) SessionWithOptions(ctx context.Context, fn func(ctx context.Co
 		opt(sopts)
 	}
 
-	return s.SessionWithSessionOptions(ctx, fn, sopts)
+	return s.SessionWithSessionOptions(ctx, sopts, fn)
 }
