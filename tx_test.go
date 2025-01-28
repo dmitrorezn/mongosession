@@ -37,7 +37,7 @@ func testSession(ctx context.Context, mt *mtest.T) {
 		client   = mt.Client
 		docs     = client.Database("db").Collection("docs")
 		users    = client.Database("db").Collection("users")
-		session  = New(client)
+		session  = NewTransactor(client)
 	)
 	doc := map[string]any{
 		"name":   "doc1",
@@ -47,15 +47,15 @@ func testSession(ctx context.Context, mt *mtest.T) {
 		"_id":  1,
 		"docs": []string{"doc1"},
 	}
-	err := session.Session(ctx, func(ctx context.Context) (err error) {
+	_, err := session.Tx(ctx, func(ctx context.Context) (_ any, err error) {
 		if _, err = docs.InsertOne(ctx, doc); err != nil {
-			return err
+			return
 		}
 		if _, err = users.InsertOne(ctx, user); err != nil {
-			return err
+			return
 		}
 
-		return err
+		return
 	})
 	required.NoError(err)
 
@@ -73,15 +73,15 @@ func testSession(ctx context.Context, mt *mtest.T) {
 		"_id":  id,
 		"docs": []string{"doc2"},
 	}
-	err = session.Session(ctx, func(ctx context.Context) error {
+	_, err = session.Tx(ctx, func(ctx context.Context) (_ any, err error) {
 		if _, err = docs.InsertOne(ctx, doc); err != nil {
-			return err
+			return
 		}
 		if _, err = users.InsertOne(ctx, user); err != nil {
-			return err
+			return
 		}
 
-		return nil
+		return
 	})
 	required.Error(err)
 
